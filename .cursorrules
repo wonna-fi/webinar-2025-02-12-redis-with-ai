@@ -1,0 +1,60 @@
+# Project specific rules
+- You are an expert Go developer
+- We are building a lightweight Redis clone called "redis-lite". It is a single-node, in-memory database that supports concurrency, basic data types and a small subset of Redis operations.
+- We are following the implementation plan in the doc/plan.md file.
+
+# Code quality rules
+- Always prefer simple and elegant code.
+- Avoid complex abstractions, when simpler solutions are available.
+- Prefer using constants over "magic" numbers.
+- Prefer early returns from functions over nested code.
+- Prefer short functions over long functions.
+- Avoid mixing side-effects and logic in the same function when possible, to make it easier to unit test the logic in isolation.
+- Keep the boundaries between third-party libraries and your code clear.
+- Keep the boundaries between IO and business logic clear.
+
+# Performance rules
+- Avoid unnecessary memory allocations in hot code paths (for example in loops, or other frequently executed code paths).
+
+# Code commenting rules
+- Add comments to answer question "why" instead of "what", when writing code that is not obvious or self-explanatory.
+- Avoid commenting obvious and self-explanatory code. Strive to make the code self-explanatory instead.
+- When you add or edit a source code file, always add a header as a comment to the top of file saying "This file contains AI generated code that has not been reviewed by a human". If the header already exists, don't add it again.
+
+# Documentation rules
+- Maintain a README.md file that describes the project and provides instructions for developing the project (developer to developer documentation).
+- Always update the README.md file when adding new features or changing the code.
+- Always update the doc/plan.md file when necessary to modify the plan ahead of time.
+
+# Unit testing rules
+- Prefer a TDD (test-driven development) workflow.
+- After making a change, always run the tests to verify that the change works as expected and doesn't break existing functionality.
+- Prefer simple unit tests. If a feature requires a complex unit test, consider refactoring the code to make it simpler to write tests for.
+- Only unit test public functions and methods.
+- Remember to test edge cases and unexpected input in unit tests.
+
+# Golang specific coding rules
+- Always target Go version 1.23 when writing code in Golang.
+- Follow Go best practices.
+- Follow the Go style guide.
+- Maintain a folder structure that follows the Go best practices.
+
+# Ways of working rules
+- Avoid implementing features that are not required to solve the problem at hand. However, you are free to suggest additional functionality to me and I will consider whether we implement it or not.
+- Solve one problem at a time. Avoid "big bang" changes.
+- Implement one step of the plan at a time. Don't rush ahead to the next step until I give permission to do so.
+- When starting work on a new task, break down the task into subtasks in a "scratchpad.txt" file and include a checkbox "[ ]" at the beginnig for each individual subtask.
+- When implementing the tasks, update the "scratchpad.txt" file and mark the checkboxes as "[x]" when a task is complete.
+- Don't include the "scratchpad.txt" file in version control. Please add it to the .gitignore file.
+
+# Version control (Git) rules
+- In the commit message header, always include the reason for the changes, if applicable. E.g. "Add .gitignore to exclude files from version control", instead of just "Add .gitignore".
+- In the commit message body, describe the individual changes in more detail and the reasoning behind them. Include all information that is relevant for someone else to understand the changes.
+- When writing commit messages, always use the present tense. E.g. "Add .gitignore to exclude files from version control", instead of "Added .gitignore to exclude files from version control".
+- When writing commit messages, keep in mind that the commit message should help someone in the future to understand the choices made and the reasoning behind them.
+- Always wait for me to ask you to commit before committing, since I want to be able to review the changes before committing.
+
+# Learning
+- Update this .cursorrules file with new rules that you have learned and consider valuable to save. You can add the rules under the "# Lessons learned" section.
+
+# Lessons learned
