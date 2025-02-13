@@ -59,6 +59,18 @@ func (r *CommandRegistry) registerBuiltinCommands() {
 			return RESPValue{}, fmt.Errorf("wrong number of arguments for 'ping' command")
 		}
 	}))
+
+	// ECHO command
+	r.Register("ECHO", CommandFunc(func(args []RESPValue) (RESPValue, error) {
+		if len(args) != 1 {
+			return RESPValue{}, fmt.Errorf("wrong number of arguments for 'echo' command")
+		}
+		// Convert the response to a bulk string if it's not already
+		if args[0].Type != BulkString {
+			return RESPValue{Type: BulkString, Str: args[0].Str}, nil
+		}
+		return args[0], nil
+	}))
 }
 
 // SerializeRESP converts a RESPValue to its wire format

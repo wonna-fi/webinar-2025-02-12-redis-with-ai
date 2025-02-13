@@ -98,9 +98,12 @@ func (s *Server) handleConnection(conn net.Conn) {
 			return
 		}
 
+		log.Printf("Received value from %s: %+v", remoteAddr, value)
+
 		// Handle the command
 		response, err := s.handleCommand(value)
 		if err != nil {
+			log.Printf("Error handling command from %s: %v", remoteAddr, err)
 			// Send error response
 			errResp := RESPValue{Type: Error, Str: err.Error()}
 			if _, err := conn.Write(SerializeRESP(errResp)); err != nil {
@@ -129,6 +132,8 @@ func (s *Server) handleCommand(value RESPValue) (RESPValue, error) {
 	if cmdName.Type != BulkString {
 		return RESPValue{}, fmt.Errorf("invalid command name format")
 	}
+
+	log.Printf("Looking up command: %q", cmdName.Str)
 
 	// Look up the command
 	cmd, ok := s.registry.Get(cmdName.Str)
