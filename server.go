@@ -23,12 +23,14 @@ type Server struct {
 	listener net.Listener
 	quit     chan struct{}
 	wg       sync.WaitGroup
+	registry *CommandRegistry
 }
 
 // NewServer creates a new Redis-lite server instance
 func NewServer() *Server {
 	return &Server{
-		quit: make(chan struct{}),
+		quit:     make(chan struct{}),
+		registry: NewCommandRegistry(),
 	}
 }
 
@@ -96,16 +98,46 @@ func (s *Server) handleConnection(conn net.Conn) {
 			return
 		}
 
-		// For now, just log the parsed command
-		log.Printf("Received command from %s: %+v", remoteAddr, value)
-
-		// Send a simple OK response for now
-		_, err = conn.Write([]byte("+OK\r\n"))
+		// Handle the command
+		response, err := s.handleCommand(value)
 		if err != nil {
+			// Send error response
+			errResp := RESPValue{Type: Error, Str: err.Error()}
+			if _, err := conn.Write(SerializeRESP(errResp)); err != nil {
+				log.Printf("Error sending error response to %s: %v", remoteAddr, err)
+				return
+			}
+			continue
+		}
+
+		// Send the response
+		if _, err := conn.Write(SerializeRESP(response)); err != nil {
 			log.Printf("Error sending response to %s: %v", remoteAddr, err)
 			return
 		}
 	}
+}
+
+// handleCommand processes a command and returns a response
+func (s *Server) handleCommand(value RESPValue) (RESPValue, error) {
+	if value.Type != Array || len(value.Array) == 0 {
+		return RESPValue{}, fmt.Errorf("invalid command format")
+	}
+
+	// Get the command name from the first array element
+	cmdName := value.Array[0]
+	if cmdName.Type != BulkString {
+		return RESPValue{}, fmt.Errorf("invalid command name format")
+	}
+
+	// Look up the command
+	cmd, ok := s.registry.Get(cmdName.Str)
+	if !ok {
+		return RESPValue{}, fmt.Errorf("unknown command '%s'", cmdName.Str)
+	}
+
+	// Execute the command with the arguments
+	return cmd.Execute(value.Array[1:])
 }
 
 // Stop gracefully shuts down the server
