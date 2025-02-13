@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -83,15 +84,25 @@ func (s *Server) handleConnection(conn net.Conn) {
 	remoteAddr := conn.RemoteAddr().String()
 	log.Printf("New connection from %s", remoteAddr)
 
-	// TODO: Implement RESP protocol handling
-	// For now, just keep the connection open until the client disconnects
-	buffer := make([]byte, 1024)
+	reader := bufio.NewReader(conn)
+
 	for {
-		_, err := conn.Read(buffer)
+		// Parse the incoming command
+		value, _, err := ParseRESP(reader)
 		if err != nil {
 			if err.Error() != "EOF" {
-				log.Printf("Error reading from connection: %v", err)
+				log.Printf("Error parsing command from %s: %v", remoteAddr, err)
 			}
+			return
+		}
+
+		// For now, just log the parsed command
+		log.Printf("Received command from %s: %+v", remoteAddr, value)
+
+		// Send a simple OK response for now
+		_, err = conn.Write([]byte("+OK\r\n"))
+		if err != nil {
+			log.Printf("Error sending response to %s: %v", remoteAddr, err)
 			return
 		}
 	}
