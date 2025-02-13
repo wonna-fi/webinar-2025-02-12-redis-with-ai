@@ -24,12 +24,14 @@ func (f CommandFunc) Execute(args []RESPValue) (RESPValue, error) {
 // CommandRegistry holds all registered commands
 type CommandRegistry struct {
 	commands map[string]Command
+	store    *Store
 }
 
 // NewCommandRegistry creates a new command registry
 func NewCommandRegistry() *CommandRegistry {
 	r := &CommandRegistry{
 		commands: make(map[string]Command),
+		store:    NewStore(),
 	}
 	r.registerBuiltinCommands()
 	return r
@@ -70,6 +72,38 @@ func (r *CommandRegistry) registerBuiltinCommands() {
 			return RESPValue{Type: BulkString, Str: args[0].Str}, nil
 		}
 		return args[0], nil
+	}))
+
+	// GET command
+	r.Register("GET", CommandFunc(func(args []RESPValue) (RESPValue, error) {
+		if len(args) != 1 {
+			return RESPValue{}, fmt.Errorf("wrong number of arguments for 'get' command")
+		}
+		if args[0].Type != BulkString {
+			return RESPValue{}, fmt.Errorf("invalid key type")
+		}
+
+		value, ok := r.store.Get(args[0].Str)
+		if !ok {
+			return RESPValue{Type: BulkString, IsNull: true}, nil
+		}
+		return RESPValue{Type: BulkString, Str: value}, nil
+	}))
+
+	// SET command
+	r.Register("SET", CommandFunc(func(args []RESPValue) (RESPValue, error) {
+		if len(args) != 2 {
+			return RESPValue{}, fmt.Errorf("wrong number of arguments for 'set' command")
+		}
+		if args[0].Type != BulkString {
+			return RESPValue{}, fmt.Errorf("invalid key type")
+		}
+		if args[1].Type != BulkString {
+			return RESPValue{}, fmt.Errorf("invalid value type")
+		}
+
+		r.store.Set(args[0].Str, args[1].Str)
+		return RESPValue{Type: SimpleString, Str: "OK"}, nil
 	}))
 }
 

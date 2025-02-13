@@ -24,6 +24,7 @@ type Server struct {
 	quit     chan struct{}
 	wg       sync.WaitGroup
 	registry *CommandRegistry
+	store    *Store
 }
 
 // NewServer creates a new Redis-lite server instance
@@ -31,6 +32,7 @@ func NewServer() *Server {
 	return &Server{
 		quit:     make(chan struct{}),
 		registry: NewCommandRegistry(),
+		store:    NewStore(),
 	}
 }
 
